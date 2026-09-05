@@ -1,0 +1,20 @@
+# Environment
+.env
+venv/
+__pycache__/
+*.pyc
+
+# Data (raw input & generated DB should not be committed)
+data/raw/*.xml
+data/db.sqlite3
+data/logs/*.log
+data/logs/dead_letter/*
+
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/logs/dead_letter/.gitkeep
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
