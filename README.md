@@ -7,16 +7,16 @@ The pipeline parses, cleans, and categorizes the raw SMS data, stores it in a re
 visualization (transaction volumes, amounts, and categories over time).
 
 ## Team Members
-- Ivan Ineza Hakizimana — Ivan70807 — [Role, e.g. Backend/ETL]
-- [Full Name] — [GitHub handle] — [Role, e.g. Frontend]
-- [Full Name] — [GitHub handle] — [Role, e.g. Database/API]
+- Ivan Ineza Hakizimana — @Ivan70807 — [Role, Backend/ETL]
+- Samuel Hezekiah Epodoi — @sam-hez — [Role, Frontend]
+- Devis Muhozi — @Devislastthought — [Role, Database/API]
 
 ## System Architecture
-High-level design diagram: [link to your Draw.io / Miro board]
-A static copy is also included in this repo at `docs/architecture-diagram.svg`.
+High-level design diagram: (https://drive.google.com/file/d/1fWVONddyhtNbjNPeAsJQeziU1_lwqy-9/view?usp=sharing)
+A static copy is also included in this repo at `docs/momo-architecture-diagram.png`.
 
-## Scrum Board
-Track our progress here: [link to your GitHub Projects / Trello / Jira board]
+## Scrum Board (Trello)
+Track our progress here: https://trello.com/b/ne4syt27
 
 ## Project Structure
 ```
