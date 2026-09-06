@@ -1,4 +1,4 @@
-# TEAM
+# EWD Group Work
 
 ## Project Description
 This project processes MoMo (Mobile Money) SMS transaction data provided in XML format.
@@ -6,14 +6,21 @@ The pipeline parses, cleans, and categorizes the raw SMS data, stores it in a re
 (SQLite) database, and exposes it through a frontend dashboard for analysis and
 visualization (transaction volumes, amounts, and categories over time).
 
+## Current Progress
+This is our Week 1 project setup. We have added the folder structure, team details,
+architecture diagram, and Scrum board. The ETL pipeline, dashboard, optional API,
+and tests are still to be implemented.
+
 ## Team Members
-- Ivan Ineza Hakizimana — @Ivan70807 — [Role, Backend/ETL]
-- Samuel Hezekiah Epodoi — @sam-hez — [Role, Frontend]
-- Devis Muhozi — @Devislastthought — [Role, Database/API]
+- Ivan Ineza Hakizimana — @Ivan70807 — Backend/ETL
+- Samuel Hezekiah Epodoi — @sam-hez — Frontend
+- Devis Muhozi — @Devislastthought — Database/API
 
 ## System Architecture
-High-level design diagram: (https://drive.google.com/file/d/1fWVONddyhtNbjNPeAsJQeziU1_lwqy-9/view?usp=sharing)
-A static copy is also included in this repo at `docs/momo-architecture-diagram.png`.
+Draw.io High level architecture diagram design: (https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Momo%20Transactions%20Architecture.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1fWVONddyhtNbjNPeAsJQeziU1_lwqy-9%26export%3Ddownload)
+A copy of the diagram is included below.
+
+![MoMo system architecture](docs/momo-architecture-diagram.jpg)
 
 ## Scrum Board (Trello)
 Track our progress here: https://trello.com/b/ne4syt27
@@ -23,7 +30,9 @@ Track our progress here: https://trello.com/b/ne4syt27
 .
 ├── README.md                         # Setup, run, overview
 ├── .env.example                      # DATABASE_URL or path to SQLite
-├── requirements.txt                  # lxml/ElementTree, dateutil, (FastAPI optional)
+├── requirements.txt                  # Dependencies will be added during development
+├── docs/
+│   └── momo-architecture-diagram.jpg   # High-level system design
 ├── index.html                        # Dashboard entry (static)
 ├── web/
 │   ├── styles.css                    # Dashboard styling
@@ -31,10 +40,11 @@ Track our progress here: https://trello.com/b/ne4syt27
 │   └── assets/                       # Images/icons (optional)
 ├── data/
 │   ├── raw/                          # Provided XML input (git-ignored)
-│   ├── processed/                    # Cleaned/derived outputs for frontend
-│   ├── db.sqlite3                    # SQLite DB file
+│   ├── processed/
+│   │   └── dashboard.json            # Placeholder until the ETL export is ready
+│   ├── db.sqlite3                    # Generated later by the ETL pipeline
 │   └── logs/
-│       ├── etl.log                   # Structured ETL logs
+│       ├── etl.log                   # Generated later during processing
 │       └── dead_letter/              # Unparsed/ignored XML snippets
 ├── etl/
 │   ├── config.py                     # File paths, thresholds, categories
@@ -57,33 +67,47 @@ Track our progress here: https://trello.com/b/ne4syt27
     └── test_categorize.py
 ```
 
-## Setup & Run
+## Setup
 
-1. Clone the repo and create a virtual environment:
-   ```bash
-   git clone <your-repo-url>
-   cd <repo-name>
-   python -m venv venv && source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-2. Copy `.env.example` to `.env` and adjust paths if needed.
-3. Place the provided `momo.xml` file in `data/raw/`.
-4. Run the ETL pipeline:
-   ```bash
-   bash scripts/run_etl.sh
-   ```
-5. Serve the frontend:
-   ```bash
-   bash scripts/serve_frontend.sh
-   ```
-   Then open http://localhost:8000 in your browser.
-
-(Optional bonus) Run the API:
+Clone the repository and create a virtual environment:
 ```bash
-uvicorn api.app:app --reload
+git clone https://github.com/Devislastthought/momo-transaction-analytics.git
+cd momo-transaction-analytics
+python3 -m venv venv
+source venv/bin/activate
 ```
+
+`requirements.txt` is a placeholder for now. We will add dependencies when we
+start implementing the pipeline. `.env.example` contains a proposed database
+path; the application does not read it yet.
+
+When we start processing data, place the provided `momo.xml` in `data/raw/`.
+Raw XML, the generated database, and logs are ignored by Git. The `.gitkeep`
+files keep the empty folders in the repository.
+
+## Planned Run Steps
+
+The scripts and application files are placeholders, so these commands will only
+be useful after implementation:
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env
+bash scripts/run_etl.sh
+bash scripts/serve_frontend.sh
+```
+
+The planned frontend address is http://localhost:8000. The optional FastAPI
+backend will be added later, with its run instructions once it is ready.
+
+## Dashboard Data
+
+`data/processed/dashboard.json` contains a valid JSON placeholder, not processed
+MoMo data. `status` is set to `not_processed`, `transactions` is empty, and
+`summary` is empty because no totals have been calculated yet. We will update
+this format when we implement the dashboard and ETL export.
 
 ## Testing
-```bash
-pytest tests/
-```
+
+The files in `tests/` are placeholders and do not contain tests yet. We will add
+tests for XML parsing, cleaning, and categorization during development.
