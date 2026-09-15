@@ -1,0 +1,6 @@
+{
+  "category_id": 1,
+  "category_code": "RECEIVE_MONEY",
+  "category_name": "Incoming Money",
+  "description": "Money received from another MoMo user"
+}
