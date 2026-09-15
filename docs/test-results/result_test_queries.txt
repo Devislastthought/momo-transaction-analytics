@@ -1,0 +1,366 @@
+MariaDB [momo_sms_db]> SOURCE database/test_queries.sql;
+Database changed
+--------------
+SELECT VERSION() AS server_version, @@version_comment AS server_type
+--------------
+
++-----------------+---------------------+
+| server_version  | server_type         |
++-----------------+---------------------+
+| 10.4.27-MariaDB | Source distribution |
++-----------------+---------------------+
+1 row in set (0.000 sec)
+
+--------------
+SHOW TABLES
+--------------
+
++------------------------+
+| Tables_in_momo_sms_db  |
++------------------------+
+| system_logs            |
+| tags                   |
+| transaction_categories |
+| transaction_tags       |
+| transactions           |
+| users                  |
++------------------------+
+6 rows in set (0.001 sec)
+
+--------------
+SELECT 'users' AS table_name, COUNT(*) AS row_count FROM users
+UNION ALL SELECT 'transaction_categories', COUNT(*) FROM transaction_categories
+UNION ALL SELECT 'transactions', COUNT(*) FROM transactions
+UNION ALL SELECT 'tags', COUNT(*) FROM tags
+UNION ALL SELECT 'transaction_tags', COUNT(*) FROM transaction_tags
+UNION ALL SELECT 'system_logs', COUNT(*) FROM system_logs
+--------------
+
++------------------------+-----------+
+| table_name             | row_count |
++------------------------+-----------+
+| users                  |         6 |
+| transaction_categories |         8 |
+| transactions           |         6 |
+| tags                   |         5 |
+| transaction_tags       |         5 |
+| system_logs            |         5 |
++------------------------+-----------+
+6 rows in set (0.002 sec)
+
+--------------
+SELECT t.transaction_id, t.amount, t.currency, c.category_name,
+       s.full_name AS sender, r.full_name AS receiver,
+       GROUP_CONCAT(g.tag_name ORDER BY g.tag_name SEPARATOR ', ') AS tags
+FROM transactions t
+JOIN transaction_categories c ON c.category_id = t.category_id
+LEFT JOIN users s ON s.user_id = t.sender_id
+LEFT JOIN users r ON r.user_id = t.receiver_id
+LEFT JOIN transaction_tags tt ON tt.transaction_id = t.transaction_id
+LEFT JOIN tags g ON g.tag_id = tt.tag_id
+GROUP BY t.transaction_id, t.amount, t.currency, c.category_name,
+         s.full_name, r.full_name
+ORDER BY t.transaction_id
+--------------
+
++----------------+----------+----------+------------------------+----------------------+------------------+-----------------------+
+| transaction_id | amount   | currency | category_name          | sender               | receiver         | tags                  |
++----------------+----------+----------+------------------------+----------------------+------------------+-----------------------+
+|              1 |  2000.00 | RWF      | Incoming Money         | Jane Smith           | NULL             | high-value, promotion |
+|              2 |  1000.00 | RWF      | Payment to Code Holder | NULL                 | Jane Smith       | NULL                  |
+|              3 |   600.00 | RWF      | Payment to Code Holder | NULL                 | Samuel Carter    | NULL                  |
+|              4 | 40000.00 | RWF      | Bank Deposit           | NULL                 | NULL             | high-value            |
+|              5 |  4000.00 | RWF      | Cash Power Payment     | NULL                 | ONAFRIQ Merchant | utility               |
+|              6 | 24000.00 | RWF      | Agent Withdrawal       | Abebe Chala Chebudie | Agent John       | refunded              |
++----------------+----------+----------+------------------------+----------------------+------------------+-----------------------+
+6 rows in set (0.001 sec)
+
+--------------
+SELECT c.category_name, COUNT(t.transaction_id) AS transaction_count,
+       COALESCE(SUM(t.amount), 0) AS total_amount
+FROM transaction_categories c
+LEFT JOIN transactions t ON t.category_id = c.category_id
+GROUP BY c.category_id, c.category_name
+ORDER BY c.category_id
+--------------
+
++-------------------------+-------------------+--------------+
+| category_name           | transaction_count | total_amount |
++-------------------------+-------------------+--------------+
+| Incoming Money          |                 1 |      2000.00 |
+| Payment to Code Holder  |                 2 |      1600.00 |
+| Bank Deposit            |                 1 |     40000.00 |
+| Airtime Purchase        |                 0 |         0.00 |
+| Bundle Purchase         |                 0 |         0.00 |
+| Cash Power Payment      |                 1 |      4000.00 |
+| Agent Withdrawal        |                 1 |     24000.00 |
+| Third-Party Transaction |                 0 |         0.00 |
++-------------------------+-------------------+--------------+
+8 rows in set (0.013 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+INSERT INTO transactions
+    (financial_transaction_id, category_id, sender_id, receiver_id,
+     amount, fee, new_balance, transaction_date)
+VALUES ('TEST-CRUD-001', 1, 2, 1, 5000.00, 0.00, 7000.00, '2026-09-15 12:00:00')
+--------------
+
+Query OK, 1 row affected (0.001 sec)
+
+--------------
+SET @test_transaction_id = LAST_INSERT_ID()
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+SELECT transaction_id, financial_transaction_id, amount, status
+FROM transactions WHERE transaction_id = @test_transaction_id
+--------------
+
++----------------+--------------------------+---------+-----------+
+| transaction_id | financial_transaction_id | amount  | status    |
++----------------+--------------------------+---------+-----------+
+|              7 | TEST-CRUD-001            | 5000.00 | COMPLETED |
++----------------+--------------------------+---------+-----------+
+1 row in set (0.000 sec)
+
+--------------
+UPDATE transactions SET status = 'REVERSED'
+WHERE transaction_id = @test_transaction_id
+--------------
+
+Query OK, 1 row affected (0.000 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+--------------
+SELECT transaction_id, amount, status
+FROM transactions WHERE transaction_id = @test_transaction_id
+--------------
+
++----------------+---------+----------+
+| transaction_id | amount  | status   |
++----------------+---------+----------+
+|              7 | 5000.00 | REVERSED |
++----------------+---------+----------+
+1 row in set (0.014 sec)
+
+--------------
+DELETE FROM transactions WHERE transaction_id = @test_transaction_id
+--------------
+
+Query OK, 1 row affected (0.001 sec)
+
+--------------
+SELECT COUNT(*) AS remaining_rows
+FROM transactions WHERE transaction_id = @test_transaction_id
+--------------
+
++----------------+
+| remaining_rows |
++----------------+
+|              0 |
++----------------+
+1 row in set (0.000 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+SELECT * FROM transaction_tags WHERE transaction_id = 1
+--------------
+
++----------------+--------+---------------------+
+| transaction_id | tag_id | tagged_at           |
++----------------+--------+---------------------+
+|              1 |      1 | 2026-09-15 22:33:01 |
+|              1 |      4 | 2026-09-15 22:33:01 |
++----------------+--------+---------------------+
+2 rows in set (0.000 sec)
+
+--------------
+SELECT log_id, transaction_id FROM system_logs WHERE log_id = 1
+--------------
+
++--------+----------------+
+| log_id | transaction_id |
++--------+----------------+
+|      1 |              1 |
++--------+----------------+
+1 row in set (0.000 sec)
+
+--------------
+DELETE FROM transactions WHERE transaction_id = 1
+--------------
+
+Query OK, 1 row affected (0.001 sec)
+
+--------------
+SELECT COUNT(*) AS remaining_links
+FROM transaction_tags WHERE transaction_id = 1
+--------------
+
++-----------------+
+| remaining_links |
++-----------------+
+|               0 |
++-----------------+
+1 row in set (0.006 sec)
+
+--------------
+SELECT log_id, transaction_id FROM system_logs WHERE log_id = 1
+--------------
+
++--------+----------------+
+| log_id | transaction_id |
++--------+----------------+
+|      1 |           NULL |
++--------+----------------+
+1 row in set (0.000 sec)
+
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+SELECT * FROM transaction_tags WHERE transaction_id = 1
+--------------
+
++----------------+--------+---------------------+
+| transaction_id | tag_id | tagged_at           |
++----------------+--------+---------------------+
+|              1 |      1 | 2026-09-15 22:33:01 |
+|              1 |      4 | 2026-09-15 22:33:01 |
++----------------+--------+---------------------+
+2 rows in set (0.013 sec)
+
+--------------
+SELECT log_id, transaction_id FROM system_logs WHERE log_id = 1
+--------------
+
++--------+----------------+
+| log_id | transaction_id |
++--------+----------------+
+|      1 |              1 |
++--------+----------------+
+1 row in set (0.001 sec)
+
+--------------
+SHOW CREATE TABLE transactions
+--------------
+
++--------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table        | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
++--------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| transactions | CREATE TABLE `transactions` (
+  `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
+  `financial_transaction_id` varchar(50) DEFAULT NULL,
+  `category_id` int(11) NOT NULL,
+  `sender_id` int(11) DEFAULT NULL,
+  `receiver_id` int(11) DEFAULT NULL,
+  `amount` decimal(12,2) NOT NULL,
+  `fee` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `new_balance` decimal(12,2) DEFAULT NULL,
+  `currency` char(3) NOT NULL DEFAULT 'RWF',
+  `transaction_date` datetime NOT NULL,
+  `status` enum('COMPLETED','FAILED','PENDING','REVERSED') NOT NULL DEFAULT 'COMPLETED',
+  `raw_message` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`transaction_id`),
+  UNIQUE KEY `uq_transactions_fin_id` (`financial_transaction_id`),
+  KEY `idx_tx_date` (`transaction_date`),
+  KEY `idx_tx_category` (`category_id`),
+  KEY `idx_tx_sender` (`sender_id`),
+  KEY `idx_tx_receiver` (`receiver_id`),
+  KEY `idx_tx_status` (`status`),
+  CONSTRAINT `fk_tx_category` FOREIGN KEY (`category_id`) REFERENCES `transaction_categories` (`category_id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_tx_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_tx_sender` FOREIGN KEY (`sender_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `chk_amount_nonneg` CHECK (`amount` >= 0),
+  CONSTRAINT `chk_fee_nonneg` CHECK (`fee` >= 0)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci |
++--------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.000 sec)
+
+--------------
+SHOW FULL COLUMNS FROM transactions
+--------------
+
++--------------------------+-------------------------------------------------+--------------------+------+-----+---------------------+----------------+---------------------------------+---------+
+| Field                    | Type                                            | Collation          | Null | Key | Default             | Extra          | Privileges                      | Comment |
++--------------------------+-------------------------------------------------+--------------------+------+-----+---------------------+----------------+---------------------------------+---------+
+| transaction_id           | int(11)                                         | NULL               | NO   | PRI | NULL                | auto_increment | select,insert,update,references |         |
+| financial_transaction_id | varchar(50)                                     | utf8mb4_unicode_ci | YES  | UNI | NULL                |                | select,insert,update,references |         |
+| category_id              | int(11)                                         | NULL               | NO   | MUL | NULL                |                | select,insert,update,references |         |
+| sender_id                | int(11)                                         | NULL               | YES  | MUL | NULL                |                | select,insert,update,references |         |
+| receiver_id              | int(11)                                         | NULL               | YES  | MUL | NULL                |                | select,insert,update,references |         |
+| amount                   | decimal(12,2)                                   | NULL               | NO   |     | NULL                |                | select,insert,update,references |         |
+| fee                      | decimal(10,2)                                   | NULL               | NO   |     | 0.00                |                | select,insert,update,references |         |
+| new_balance              | decimal(12,2)                                   | NULL               | YES  |     | NULL                |                | select,insert,update,references |         |
+| currency                 | char(3)                                         | utf8mb4_unicode_ci | NO   |     | RWF                 |                | select,insert,update,references |         |
+| transaction_date         | datetime                                        | NULL               | NO   | MUL | NULL                |                | select,insert,update,references |         |
+| status                   | enum('COMPLETED','FAILED','PENDING','REVERSED') | utf8mb4_unicode_ci | NO   | MUL | COMPLETED           |                | select,insert,update,references |         |
+| raw_message              | text                                            | utf8mb4_unicode_ci | YES  |     | NULL                |                | select,insert,update,references |         |
+| created_at               | datetime                                        | NULL               | NO   |     | current_timestamp() |                | select,insert,update,references |         |
++--------------------------+-------------------------------------------------+--------------------+------+-----+---------------------+----------------+---------------------------------+---------+
+13 rows in set (0.003 sec)
+
+--------------
+SHOW INDEX FROM transactions
+--------------
+
++--------------+------------+------------------------+--------------+--------------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table        | Non_unique | Key_name               | Seq_in_index | Column_name              | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++--------------+------------+------------------------+--------------+--------------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| transactions |          0 | PRIMARY                |            1 | transaction_id           | A         |           6 |     NULL | NULL   |      | BTREE      |         |               |
+| transactions |          0 | uq_transactions_fin_id |            1 | financial_transaction_id | A         |           6 |     NULL | NULL   | YES  | BTREE      |         |               |
+| transactions |          1 | idx_tx_date            |            1 | transaction_date         | A         |           6 |     NULL | NULL   |      | BTREE      |         |               |
+| transactions |          1 | idx_tx_category        |            1 | category_id              | A         |           6 |     NULL | NULL   |      | BTREE      |         |               |
+| transactions |          1 | idx_tx_sender          |            1 | sender_id                | A         |           6 |     NULL | NULL   | YES  | BTREE      |         |               |
+| transactions |          1 | idx_tx_receiver        |            1 | receiver_id              | A         |           6 |     NULL | NULL   | YES  | BTREE      |         |               |
+| transactions |          1 | idx_tx_status          |            1 | status                   | A         |           6 |     NULL | NULL   |      | BTREE      |         |               |
++--------------+------------+------------------------+--------------+--------------------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+7 rows in set (0.033 sec)
+
+--------------
+SELECT COUNT(*) AS transaction_count, SUM(amount) AS total_amount,
+       SUM(fee) AS total_fees FROM transactions
+--------------
+
++-------------------+--------------+------------+
+| transaction_count | total_amount | total_fees |
++-------------------+--------------+------------+
+|                 6 |     71600.00 |     200.00 |
++-------------------+--------------+------------+
+1 row in set (0.001 sec)
+
+--------------
+SELECT COUNT(*) AS leftover_test_rows
+FROM transactions WHERE financial_transaction_id = 'TEST-CRUD-001'
+--------------
+
++--------------------+
+| leftover_test_rows |
++--------------------+
+|                  0 |
++--------------------+
+1 row in set (0.001 sec)
+
+MariaDB [momo_sms_db]> 

@@ -1,0 +1,139 @@
+MariaDB [(none)]> SOURCE database/constraint_tests.sql;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+UPDATE transactions SET amount = -1 WHERE transaction_id = 1
+--------------
+
+ERROR 4025 (23000) at line 5 in file: 'database/constraint_tests.sql': CONSTRAINT `chk_amount_nonneg` failed for `momo_sms_db`.`transactions`
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+UPDATE transactions SET fee = -1 WHERE transaction_id = 1
+--------------
+
+ERROR 4025 (23000) at line 9 in file: 'database/constraint_tests.sql': CONSTRAINT `chk_fee_nonneg` failed for `momo_sms_db`.`transactions`
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+UPDATE transactions SET financial_transaction_id = '76662021700'
+WHERE transaction_id = 2
+--------------
+
+ERROR 1062 (23000) at line 13 in file: 'database/constraint_tests.sql': Duplicate entry '76662021700' for key 'uq_transactions_fin_id'
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+UPDATE transactions SET category_id = -1 WHERE transaction_id = 1
+--------------
+
+ERROR 1452 (23000) at line 18 in file: 'database/constraint_tests.sql': Cannot add or update a child row: a foreign key constraint fails (`momo_sms_db`.`transactions`, CONSTRAINT `fk_tx_category` FOREIGN KEY (`category_id`) REFERENCES `transaction_categories` (`category_id`) ON UPDATE CASCADE)
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+INSERT INTO transaction_tags (transaction_id, tag_id) VALUES (1, 1)
+--------------
+
+ERROR 1062 (23000) at line 22 in file: 'database/constraint_tests.sql': Duplicate entry '1-1' for key 'PRIMARY'
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+DELETE FROM transaction_categories WHERE category_id = 1
+--------------
+
+ERROR 1451 (23000) at line 26 in file: 'database/constraint_tests.sql': Cannot delete or update a parent row: a foreign key constraint fails (`momo_sms_db`.`transactions`, CONSTRAINT `fk_tx_category` FOREIGN KEY (`category_id`) REFERENCES `transaction_categories` (`category_id`) ON UPDATE CASCADE)
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+START TRANSACTION
+--------------
+
+Query OK, 0 rows affected (0.001 sec)
+
+--------------
+UPDATE transactions SET amount = NULL WHERE transaction_id = 1
+--------------
+
+ERROR 1048 (23000) at line 30 in file: 'database/constraint_tests.sql': Column 'amount' cannot be null
+--------------
+ROLLBACK
+--------------
+
+Query OK, 0 rows affected (0.000 sec)
+
+--------------
+SELECT transaction_id, financial_transaction_id, category_id, amount, fee
+FROM transactions WHERE transaction_id IN (1, 2) ORDER BY transaction_id
+--------------
+
++----------------+--------------------------+-------------+---------+------+
+| transaction_id | financial_transaction_id | category_id | amount  | fee  |
++----------------+--------------------------+-------------+---------+------+
+|              1 | 76662021700              |           1 | 2000.00 | 0.00 |
+|              2 | 73214484437              |           2 | 1000.00 | 0.00 |
++----------------+--------------------------+-------------+---------+------+
+2 rows in set (0.000 sec)
+
+MariaDB [momo_sms_db]> 
