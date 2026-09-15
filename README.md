@@ -16,6 +16,8 @@ and tests are still to be implemented.
 - Samuel Hezekiah Epodoi — @sam-hez — Frontend
 - Devis Muhozi — @Devislastthought — Database/API
 
+TASK SHEET (https://docs.google.com/spreadsheets/d/1GonHvdL1HM06K-z2PElY-2wRZhfMsZfxQQ4Bfkp_DD0/edit?usp=sharing)
+
 ## System Architecture
 Draw.io High level architecture diagram design: (https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Momo%20Transactions%20Architecture.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1fWVONddyhtNbjNPeAsJQeziU1_lwqy-9%26export%3Ddownload)
 A copy of the diagram is included below.
