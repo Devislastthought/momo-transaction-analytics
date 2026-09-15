@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-09-15T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram name="MoMo SMS ERD" id="momo-erd-v2">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- USERS -->
+        <mxCell id="ent-users" value="USERS" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="300" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="u1" value="PK   user_id            INT             NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-users"><mxGeometry y="26" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="u2" value="       full_name          VARCHAR(150)    NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-users"><mxGeometry y="50" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="u3" value="UQ   phone_number       VARCHAR(20)     NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-users"><mxGeometry y="74" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="u4" value="       momo_code          VARCHAR(20)     NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-users"><mxGeometry y="98" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="u5" value="       user_type          ENUM*           NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-users"><mxGeometry y="122" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="u6" value="       created_at         DATETIME        NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-users"><mxGeometry y="146" width="300" height="24" as="geometry"/></mxCell>
+
+        <!-- TRANSACTION CATEGORIES -->
+        <mxCell id="ent-cat" value="TRANSACTION_CATEGORIES" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#d5e8d4;strokeColor=#82b366;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="300" height="122" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="PK   category_id        INT             NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-cat"><mxGeometry y="26" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="c2" value="UQ   category_code      VARCHAR(30)     NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-cat"><mxGeometry y="50" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="c3" value="       category_name      VARCHAR(100)    NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-cat"><mxGeometry y="74" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="c4" value="       description        VARCHAR(255)    NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-cat"><mxGeometry y="98" width="300" height="24" as="geometry"/></mxCell>
+
+        <!-- TRANSACTIONS -->
+        <mxCell id="ent-tx" value="TRANSACTIONS" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#ffe6cc;strokeColor=#d79b00;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="60" width="360" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" value="PK   transaction_id            INT             NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tx"><mxGeometry y="26" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t2" value="UQ   financial_transaction_id  VARCHAR(50)     NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tx"><mxGeometry y="50" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t3" value="FK   category_id               INT             NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tx"><mxGeometry y="74" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t4" value="FK   sender_id                 INT             NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tx"><mxGeometry y="98" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t5" value="FK   receiver_id               INT             NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tx"><mxGeometry y="122" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t6" value="       amount                    DECIMAL(12,2)   NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="146" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t7" value="       fee                       DECIMAL(10,2)   NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="170" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t8" value="       new_balance               DECIMAL(12,2)   NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="194" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t9" value="       currency                  CHAR(3)         NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="218" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t10" value="       transaction_date          DATETIME        NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="242" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t11" value="       status                    ENUM*           NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="266" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t12" value="       raw_message               TEXT            NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="290" width="360" height="24" as="geometry"/></mxCell>
+        <mxCell id="t13" value="       created_at                DATETIME        NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="314" width="360" height="24" as="geometry"/></mxCell>
+
+        <!-- TAGS -->
+        <mxCell id="ent-tags" value="TAGS" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="60" width="260" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" value="PK   tag_id           INT             NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tags"><mxGeometry y="26" width="260" height="24" as="geometry"/></mxCell>
+        <mxCell id="g2" value="UQ   tag_name          VARCHAR(50)     NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-tags"><mxGeometry y="50" width="260" height="24" as="geometry"/></mxCell>
+
+        <!-- TRANSACTION_TAGS junction -->
+        <mxCell id="ent-junc" value="TRANSACTION_TAGS  (junction table)" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#f8cecc;strokeColor=#b85450;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="220" width="300" height="98" as="geometry" />
+        </mxCell>
+        <mxCell id="j1" value="PK,FK  transaction_id   INT       NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-junc"><mxGeometry y="26" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="j2" value="PK,FK  tag_id           INT       NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-junc"><mxGeometry y="50" width="300" height="24" as="geometry"/></mxCell>
+        <mxCell id="j3" value="        tagged_at        DATETIME  NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-junc"><mxGeometry y="74" width="300" height="24" as="geometry"/></mxCell>
+
+        <!-- SYSTEM_LOGS -->
+        <mxCell id="ent-logs" value="SYSTEM_LOGS" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#fff2cc;strokeColor=#d6b656;html=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="500" width="340" height="194" as="geometry" />
+        </mxCell>
+        <mxCell id="l1" value="PK   log_id            INT             NOT NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-logs"><mxGeometry y="26" width="340" height="24" as="geometry"/></mxCell>
+        <mxCell id="l2" value="FK   transaction_id    INT             NULL" style="text;align=left;fontSize=10.5;html=1;fontStyle=1;" vertex="1" parent="ent-logs"><mxGeometry y="50" width="340" height="24" as="geometry"/></mxCell>
+        <mxCell id="l3" value="       log_level         ENUM*           NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-logs"><mxGeometry y="74" width="340" height="24" as="geometry"/></mxCell>
+        <mxCell id="l4" value="       process_stage     VARCHAR(50)     NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-logs"><mxGeometry y="98" width="340" height="24" as="geometry"/></mxCell>
+        <mxCell id="l5" value="       message           TEXT            NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-logs"><mxGeometry y="122" width="340" height="24" as="geometry"/></mxCell>
+        <mxCell id="l6" value="       source_file       VARCHAR(255)    NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-logs"><mxGeometry y="146" width="340" height="24" as="geometry"/></mxCell>
+        <mxCell id="l7" value="       created_at        DATETIME        NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-logs"><mxGeometry y="170" width="340" height="24" as="geometry"/></mxCell>
+
+        <!-- ENUM LEGEND -->
+        <mxCell id="legend" value="ENUM LEGEND  (* referenced above)&#10;&#10;users.user_type:        CUSTOMER | AGENT | MERCHANT | SYSTEM&#10;transactions.status:    COMPLETED | FAILED | PENDING | REVERSED&#10;system_logs.log_level:  INFO | WARNING | ERROR | DEBUG" style="text;align=left;verticalAlign=top;fontSize=11;html=1;fillColor=#f5f5f5;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="40" y="820" width="620" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Relationships -->
+        <mxCell id="e1" value="1:M sender (optional)" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;fontSize=10;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;dashed=1;exitX=1;exitY=0.15;entryX=0;entryY=0.35;" edge="1" parent="1" source="ent-users" target="ent-tx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="1:M receiver (optional)" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;fontSize=10;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;dashed=1;exitX=1;exitY=0.3;entryX=0;entryY=0.5;" edge="1" parent="1" source="ent-users" target="ent-tx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="1:M (required)" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;fontSize=10;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;exitX=1;exitY=0.5;entryX=0;entryY=0.2;" edge="1" parent="1" source="ent-cat" target="ent-tx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="1:M (optional FK)" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;fontSize=10;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ent-tx" target="ent-logs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="1:M" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;fontSize=10;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;exitX=1;exitY=0.1;entryX=0;entryY=0.3;" edge="1" parent="1" source="ent-tx" target="ent-junc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="1:M" style="edgeStyle=entityRelationEdgeStyle;rounded=0;html=1;fontSize=10;startArrow=ERone;startFill=0;endArrow=ERmany;endFill=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ent-tags" target="ent-junc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note1" value="TRANSACTIONS (M) &#8596; TAGS (N) is many-to-many,&#10;resolved via TRANSACTION_TAGS with composite PK (transaction_id, tag_id)." style="text;align=left;fontSize=11;fontStyle=2;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="330" width="380" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
