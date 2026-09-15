@@ -1,0 +1,45 @@
+{
+  "transaction_id": 1,
+  "financial_transaction_id": "76662021700",
+  "amount": 2000.00,
+  "fee": 0.00,
+  "new_balance": 2000.00,
+  "currency": "RWF",
+  "transaction_date": "2024-05-10T16:30:51Z",
+  "status": "COMPLETED",
+
+  "category": {
+    "category_id": 1,
+    "category_code": "RECEIVE_MONEY",
+    "category_name": "Incoming Money"
+  },
+
+  "sender": {
+    "user_id": 1,
+    "full_name": "Jane Smith",
+    "phone_number": "250788000013",
+    "user_type": "CUSTOMER"
+  },
+
+  "receiver": {
+    "user_id": 6,
+    "full_name": "Abebe Chala Chebudie",
+    "phone_number": "250788000036",
+    "user_type": "CUSTOMER"
+  },
+
+  "tags": [
+    { "tag_id": 1, "tag_name": "promotion" },
+    { "tag_id": 4, "tag_name": "high-value" }
+  ],
+
+  "logs": [
+    {
+      "log_id": 1,
+      "log_level": "INFO",
+      "process_stage": "parse_xml",
+      "message": "Successfully parsed SMS into transaction record",
+      "created_at": "2024-05-10T16:31:00Z"
+    }
+  ]
+}
