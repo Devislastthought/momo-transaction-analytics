@@ -5,7 +5,7 @@ transactions supplied in XML format.
 
 ## Database Design Document (PDF)
 
-**[Database Design Document PDF](docs/MoMo%20Database%20Design%20Document.pdf)**
+**[Database Design Document PDF](https://drive.google.com/file/d/1iSFLY2MmDlJPP_yQQ37MpRMbfuDzILU9/view?usp=sharing)**
 
 The PDF contains the database design documentation for the Week 2 submission.
 
