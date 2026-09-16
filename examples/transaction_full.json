@@ -1,0 +1,45 @@
+{
+  "transaction_id": 1,
+  "financial_transaction_id": "76662021700",
+  "amount": 2000.0,
+  "fee": 0.0,
+  "new_balance": 2000.0,
+  "currency": "RWF",
+  "transaction_date": "2024-05-10T16:30:51",
+  "status": "COMPLETED",
+  "category": {
+    "category_id": 1,
+    "category_code": "RECEIVE_MONEY",
+    "category_name": "Incoming Money",
+    "description": "Money received from another MoMo user"
+  },
+  "sender": {
+    "user_id": 1,
+    "full_name": "Jane Smith",
+    "phone_number": "250788000013",
+    "momo_code": null,
+    "user_type": "CUSTOMER"
+  },
+  "receiver": null,
+  "tags": [
+    {
+      "tag_id": 1,
+      "tag_name": "promotion"
+    },
+    {
+      "tag_id": 4,
+      "tag_name": "high-value"
+    }
+  ],
+  "logs": [
+    {
+      "log_id": 1,
+      "log_level": "INFO",
+      "process_stage": "parse_xml",
+      "message": "Successfully parsed SMS into transaction record",
+      "transaction_id": 1,
+      "source_file": "data/raw/momo.xml"
+    }
+  ],
+  "raw_message": "You have received 2000 RWF from Jane Smith on your mobile money account."
+}

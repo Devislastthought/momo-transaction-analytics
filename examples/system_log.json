@@ -4,6 +4,5 @@
   "log_level": "ERROR",
   "process_stage": "parse_xml",
   "message": "Unable to parse malformed SMS body, moved to dead letter",
-  "source_file": "data/raw/momo.xml",
-  "created_at": "2024-05-10T16:32:00Z"
+  "source_file": "data/raw/momo.xml"
 }
