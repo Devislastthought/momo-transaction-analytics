@@ -24,6 +24,8 @@ Week 1 proposed SQLite for the application. Week 2 adds the SQL database design 
 
 Team Participation Sheet (https://docs.google.com/spreadsheets/d/1GonHvdL1HM06K-z2PElY-2wRZhfMsZfxQQ4Bfkp_DD0/edit?usp=sharing)
 
+Team participation Sheet for Week 3 (https://docs.google.com/spreadsheets/d/1VHi_E-Z44u94SFLJpcACQITCTdPzp0qP7PHlWHSoczg/edit?usp=sharing)
+
 Trello Board (https://trello.com/b/ne4syt27)
 
 [Database Design Document (PDF)](docs/MoMo%20Database%20Design%20Document.pdf)
