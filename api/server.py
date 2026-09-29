@@ -33,6 +33,17 @@ TEXT_FIELDS = ["type", "sender", "receiver", "timestamp", "transaction_id", "raw
 NUMBER_FIELDS = ["amount", "balance"]
 REQUIRED_FIELDS = ["type", "amount", "sender", "receiver", "timestamp"]
 
+# biggest request body we accept (bytes); stops a client from sending huge or fake sizes
+MAX_BODY_SIZE = 1_000_000
+
+
+def parse_id(id_text):
+    """Turn the id from the url into an int, or None if it is not a plain number like 5."""
+    # isascii() matters: characters such as the superscript two pass isdigit() but crash int()
+    if id_text.isascii() and id_text.isdigit():
+        return int(id_text)
+    return None
+
 
 def check_data(data, need_all_fields):
     """Check the JSON the client sent. Returns an error message, or None if it is fine."""
@@ -47,6 +58,10 @@ def check_data(data, need_all_fields):
     for field in data:
         if field not in TEXT_FIELDS and field not in NUMBER_FIELDS:
             return "Unknown field: " + field
+
+    for field in REQUIRED_FIELDS:
+        if field in data and data[field] is None:
+            return "Field '" + field + "' cannot be null"
 
     for field in TEXT_FIELDS:
         if field in data and data[field] is not None and not isinstance(data[field], str):
@@ -119,6 +134,8 @@ class MoMoHandler(BaseHTTPRequestHandler):
         """Read the JSON body of a POST/PUT. Returns None if it is not valid JSON."""
         try:
             length = int(self.headers.get("Content-Length", 0))
+            if length <= 0 or length > MAX_BODY_SIZE:      # a negative size would make read() wait forever
+                return None
             raw = self.rfile.read(length)
             return json.loads(raw)
         except Exception:
@@ -142,10 +159,11 @@ class MoMoHandler(BaseHTTPRequestHandler):
             return
 
         # GET /transactions/{id}
-        if not id_text.isdigit() or int(id_text) not in transactions:
+        transaction_id = parse_id(id_text)
+        if transaction_id is None or transaction_id not in transactions:
             self.send_error_json(404, f"Transaction {id_text} not found")
             return
-        self.send_json(200, transactions[int(id_text)])
+        self.send_json(200, transactions[transaction_id])
 
     # ---------- POST ----------
 
@@ -203,7 +221,8 @@ class MoMoHandler(BaseHTTPRequestHandler):
         if id_text is None:
             self.send_error_json(405, "PUT needs an id, use /transactions/{id}")
             return
-        if not id_text.isdigit() or int(id_text) not in transactions:
+        transaction_id = parse_id(id_text)
+        if transaction_id is None or transaction_id not in transactions:
             self.send_error_json(404, f"Transaction {id_text} not found")
             return
 
@@ -216,7 +235,7 @@ class MoMoHandler(BaseHTTPRequestHandler):
             self.send_error_json(400, error)
             return
 
-        transaction = transactions[int(id_text)]
+        transaction = transactions[transaction_id]
         for field in data:
             transaction[field] = data[field]       # only the fields that were sent are changed
         self.send_json(200, transaction)
@@ -235,11 +254,12 @@ class MoMoHandler(BaseHTTPRequestHandler):
         if id_text is None:
             self.send_error_json(405, "DELETE needs an id, use /transactions/{id}")
             return
-        if not id_text.isdigit() or int(id_text) not in transactions:
+        transaction_id = parse_id(id_text)
+        if transaction_id is None or transaction_id not in transactions:
             self.send_error_json(404, f"Transaction {id_text} not found")
             return
 
-        del transactions[int(id_text)]
+        del transactions[transaction_id]
         self.send_json(200, {"message": f"Transaction {id_text} deleted"})
 
 

@@ -7,7 +7,7 @@ import json
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 
-# path to the xml file (data/modified_sms_v2.xml)
+# path to the xml file (data/raw/modified_sms_v2.xml)
 BASE_FOLDER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 XML_FILE = os.environ.get("MOMO_XML_PATH", os.path.join(BASE_FOLDER, "data", "raw", "modified_sms_v2.xml"))
 JSON_FILE = os.path.join(BASE_FOLDER, "data", "processed", "transactions.json")

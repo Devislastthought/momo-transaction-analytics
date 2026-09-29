@@ -1,7 +1,13 @@
 # JSON examples
 
-These are proposed API response examples based on the sample inserts in
-`database/database_setup.sql`. The API is not implemented yet.
+These are proposed API response examples for the six database tables, based on the
+sample inserts in `database/database_setup.sql`.
+
+The Week 3 REST API (`api/server.py`) is a separate, simpler API: it serves the SMS
+records straight from the XML as flat objects (`id`, `type`, `amount`, `sender`,
+`receiver`, ...) and is documented in `docs/api_docs.md`. The examples here show how the
+same data would look, with nested users, categories, tags and logs, once the API is
+connected to the database.
 
 `json_schemas.json` collects examples for all six tables and one nested
 transaction. It contains example data, not formal JSON Schema validation rules.

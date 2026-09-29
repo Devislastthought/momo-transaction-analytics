@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import base64
+import socket
 import threading
 import unittest
 import urllib.request
@@ -28,6 +29,17 @@ def call(port, method, path, body=None, user="test_user", password="test_passwor
             return response.status, json.loads(response.read())
     except urllib.error.HTTPError as error:
         return error.code, json.loads(error.read())
+
+
+def raw_request(port, request_bytes):
+    """Send raw bytes (for requests urllib refuses to build) and return the status line."""
+    with socket.create_connection(("127.0.0.1", port), timeout=3) as sock:
+        sock.sendall(request_bytes)
+        return sock.recv(200).split(b"\r\n")[0].decode()
+
+
+def auth_header():
+    return b"Authorization: Basic " + base64.b64encode(b"test_user:test_password") + b"\r\n"
 
 
 class ApiTests(unittest.TestCase):
@@ -80,6 +92,24 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(call(self.port, "POST", "/transactions", dict(good, amount=-5))[0], 400)
         self.assertEqual(call(self.port, "POST", "/transactions", dict(good, timestamp="garbage"))[0], 400)
         self.assertEqual(call(self.port, "POST", "/transactions", dict(good, hacker="x"))[0], 400)
+
+    def test_required_fields_cannot_be_null(self):
+        nulls = {"type": None, "amount": 1, "sender": None, "receiver": None,
+                 "timestamp": "2025-02-01 10:15:00"}
+        self.assertEqual(call(self.port, "POST", "/transactions", nulls)[0], 400)
+        self.assertEqual(call(self.port, "PUT", "/transactions/2", {"sender": None})[0], 400)
+        # the record must not have been changed by the rejected update
+        self.assertIsNotNone(call(self.port, "GET", "/transactions/2")[1]["sender"])
+
+    def test_negative_content_length_does_not_hang(self):
+        request = (b"POST /transactions HTTP/1.1\r\nHost: x\r\n" + auth_header()
+                   + b"Content-Length: -1\r\n\r\n")
+        self.assertIn("400", raw_request(self.port, request))
+
+    def test_odd_id_characters_give_404_not_a_crash(self):
+        # byte 0xB2 is read as the superscript two, which isdigit() accepts but int() rejects
+        request = b"GET /transactions/\xb2 HTTP/1.1\r\nHost: x\r\n" + auth_header() + b"\r\n"
+        self.assertIn("404", raw_request(self.port, request))
 
     def test_wrong_method_on_route(self):
         self.assertEqual(call(self.port, "POST", "/transactions/1", {})[0], 405)

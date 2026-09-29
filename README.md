@@ -1,5 +1,7 @@
 # MoMo Transaction Analytics
 
+**Team name: Triple Threat**
+
 Enterprise Web Development group project for processing and analysing MoMo SMS transactions supplied in XML format.
 
 ## Database Design Document (PDF)
@@ -30,15 +32,25 @@ Trello Board (https://trello.com/b/ne4syt27)
 
 The six tables are `users`, `transaction_categories`, `transactions`, `tags`, `transaction_tags`, and `system_logs`. Transactions reference a category and optional sender/receiver users. The junction table `transaction_tags` connects transactions and tags through a composite primary key. A log can reference a transaction or have a NULL reference when no transaction record exists.
 
-The SQL includes foreign keys, unique transaction references, nonnegative amount and fee checks, and indexes for transaction lookups. See the [design rationale](docs/ERD_explanation.md) and [editable ERD](docs/erd_diagram.drawio).
+The SQL includes foreign keys, unique transaction references, nonnegative amount and fee checks, indexes for transaction lookups, and a `COMMENT` on every table and column (view them with `SHOW FULL COLUMNS FROM transactions;`). See the [design rationale](docs/ERD_explanation.md) and [editable ERD](docs/erd_diagram.drawio).
 
 ![Database ERD](docs/erd_diagram.png)
 
 ## Files
 
 ```text
+.gitignore                    Keeps secrets, caches and generated files out of Git
+api/
+  server.py                   Week 3 REST API (http.server + Basic Auth)
+dsa/
+  parse_xml.py                XML -> list of transaction dictionaries
+  search_compare.py           Linear vs dictionary vs binary search benchmark
+tests/
+  test_api.py, test_dsa.py    Unit tests (12 tests)
+  curl_tests.sh               End-to-end curl walkthrough of the API
+screenshots/                  Test-case screenshots required by Week 3
 database/
-  database_setup.sql          Tables, constraints, indexes and sample inserts
+  database_setup.sql          Tables, constraints, indexes, column comments and sample inserts
   test_queries.sql            Counts, queries, CRUD and rollback checks
   constraint_tests.sql        Deliberately invalid operations
 examples/
@@ -156,7 +168,7 @@ Requests, responses and error codes: [docs/api_docs.md](docs/api_docs.md).
 * Basic Auth is checked before any route runs; failures return `401` with `WWW-Authenticate`.
 * The password is compared in constant time (`hmac.compare_digest`).
 * Credentials come from environment variables, never from the source code.
-* POST and PUT bodies are validated (JSON shape, required fields, types, non-negative amount, timestamp format, unknown fields).
+* POST and PUT bodies are validated (JSON shape, required fields and no `null` in them, types, non-negative amount, timestamp format, unknown fields) and limited to 1 MB.
 * Basic Auth only Base64-encodes credentials, so it needs HTTPS in real use. JWT and OAuth 2.0 are stronger; the report compares them.
 
 ### Search benchmark
@@ -179,6 +191,8 @@ Linear search is O(n), binary search O(log n), dictionary lookup O(1) on average
 python3 -m unittest tests/test_api.py tests/test_dsa.py -v
 bash tests/curl_tests.sh
 ```
+
+The 12 unit tests cover CRUD, authentication, validation and three regression cases: required fields cannot be set to `null`, a negative `Content-Length` returns `400` instead of hanging the single-threaded server, and an odd id such as `²` returns `404` instead of crashing the handler.
 
 `tests/curl_tests.sh` needs the server running and both environment variables exported. Its recorded output is in `docs/curl_test_output.txt`; screenshots go in [`screenshots/`](screenshots/). The team-submitted PDF report is [docs/MoMo_API_Report.pdf](docs/MoMo_API_Report.pdf).
 
