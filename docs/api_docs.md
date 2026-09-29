@@ -3,7 +3,7 @@
 **Base URL:** `http://127.0.0.1:8000`
 **Data format:** JSON
 **Authentication:** HTTP Basic Auth on every endpoint
-**Credentials:** set with the `API_USER` and `API_PASSWORD` environment variables (the examples use them)
+**Credentialss:** set with the `API_USER` and `API_PASSWORD` environment variables (the examples use them)
 
 The API holds the 1691 SMS records from `modified_sms_v2.xml` (ids 1 to 1691).
 
