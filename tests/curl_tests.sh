@@ -1,55 +1,62 @@
 #!/bin/bash
-# Test script for the API.
-# 1) export API_USER and API_PASSWORD, then start the server: python3 api/server.py
-# 2) in another terminal export the same two variables
-# 3) run this file:                         bash tests/curl_tests.sh
-# (a fresh server has 1691 transactions, so the new one from POST gets id 1692)
+# Start api/server.py first, then export the same API_USER and API_PASSWORD here.
+# Run: bash tests/curl_tests.sh
+set -euo pipefail
+: "${API_USER:?Export API_USER first}"
+: "${API_PASSWORD:?Export API_PASSWORD first}"
+URL="${API_URL:-http://127.0.0.1:8000}"
+work_dir=$(mktemp -d)
+trap 'rm -rf "$work_dir"' EXIT
 
-URL="http://127.0.0.1:8000"
-LOGIN="$API_USER:$API_PASSWORD"
+request() {
+    local title="$1" expected="$2" method="$3" path="$4" auth="$5" payload="${6:-}"
+    local login="$API_USER:$API_PASSWORD"
+    local args=(-sS --max-time 10)
+    echo "### $title"
+    echo "Expected HTTP status: $expected"
+    printf 'curl -i -X %s ' "$method"
+    if [ "$auth" = wrong ]; then
+        login="$API_USER:wrong-password"
+        printf '%s ' '-u "$API_USER:wrong-password"'
+    elif [ "$auth" = valid ]; then
+        printf '%s ' '-u "$API_USER:$API_PASSWORD"'
+    fi
+    if [ "$auth" != none ]; then args+=(-u "$login"); fi
+    if [ -n "$payload" ]; then
+        args+=(-H 'Content-Type: application/json' -d "$payload")
+        printf -- "-H 'Content-Type: application/json' -d '%s' " "$payload"
+    fi
+    printf '%s%s\n\n' "$URL" "$path"
+    status=$(curl -D "$work_dir/headers" -o "$work_dir/body" \
+        -w '%{http_code}' -X "$method" "${args[@]}" "$URL$path")
+    cat "$work_dir/headers"
+    if [ "$path" = /transactions ] && [ "$method" = GET ] && [ "$status" = 200 ]; then
+        python3 -c 'import json,sys; print("Response contains", len(json.load(open(sys.argv[1]))), "transactions (body omitted here).")' "$work_dir/body"
+    else
+        cat "$work_dir/body"
+    fi
+    echo
+    if [ "$status" != "$expected" ]; then
+        echo "FAIL: expected $expected, received $status"
+        exit 1
+    fi
+    echo "PASS: HTTP $status"
+    echo
+}
 
-echo "### 1. GET /transactions/1 with correct login"
-curl -i -u $LOGIN $URL/transactions/1
-echo
-echo
-echo "### 2. GET /transactions with correct login (only the first lines are shown)"
-curl -s -i -u $LOGIN $URL/transactions | head -15
-echo
-echo "### 3. GET /transactions with WRONG password"
-curl -i -u "$API_USER:wrong-password" $URL/transactions
-echo
-echo
-echo "### 4. GET /transactions with no login at all"
-curl -i $URL/transactions
-echo
-echo
-echo "### 5. POST /transactions (add a new one)"
-curl -i -u $LOGIN -X POST $URL/transactions \
-  -H "Content-Type: application/json" \
-  -d '{"type":"transfer","amount":3000,"sender":"You","receiver":"Grace Uwase","timestamp":"2025-02-01 10:15:00","balance":47000}'
-echo
-echo
-echo "### 6. PUT /transactions/1692 (change amount and balance)"
-curl -i -u $LOGIN -X PUT $URL/transactions/1692 \
-  -H "Content-Type: application/json" \
-  -d '{"amount":3500,"balance":46500}'
-echo
-echo
-echo "### 7. DELETE /transactions/1692"
-curl -i -u $LOGIN -X DELETE $URL/transactions/1692
-echo
-echo
-echo "### 8. GET /transactions/1692 again (should be 404 now)"
-curl -i -u $LOGIN $URL/transactions/1692
-echo
-echo
-echo "### 9. POST with bad data (should be 400)"
-curl -i -u $LOGIN -X POST $URL/transactions \
-  -H "Content-Type: application/json" \
-  -d '{"amount":"abc"}'
-echo
-echo "### 10. POST with a bad timestamp (should be 400)"
-curl -i -u $LOGIN -X POST $URL/transactions \
-  -H "Content-Type: application/json" \
-  -d '{"type":"transfer","amount":100,"sender":"You","receiver":"Test","timestamp":"garbage"}'
-echo
+request '1. Authenticated GET one transaction' 200 GET /transactions/1 valid
+request '2. Authenticated GET all transactions' 200 GET /transactions valid
+request '3. Wrong password' 401 GET /transactions wrong
+request '4. Missing credentials' 401 GET /transactions none
+request '5. Create transaction' 201 POST /transactions valid \
+    '{"type":"transfer","amount":3000,"sender":"You","receiver":"Grace Uwase","timestamp":"2025-02-01 10:15:00","balance":47000}'
+new_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["id"])' "$work_dir/body")
+request '6. Update the created transaction' 200 PUT "/transactions/$new_id" valid \
+    '{"amount":3500,"balance":46500}'
+python3 -c 'import json,sys; row=json.load(open(sys.argv[1])); assert row["amount"] == 3500 and row["balance"] == 46500' "$work_dir/body"
+request '7. Delete the created transaction' 200 DELETE "/transactions/$new_id" valid
+request '8. Confirm deletion' 404 GET "/transactions/$new_id" valid
+request '9. Reject missing required fields' 400 POST /transactions valid '{"amount":"abc"}'
+request '10. Reject invalid timestamp' 400 POST /transactions valid \
+    '{"type":"transfer","amount":100,"sender":"You","receiver":"Test","timestamp":"garbage"}'
+echo 'All 10 curl checks passed.'

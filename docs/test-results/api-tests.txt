@@ -1,0 +1,49 @@
+Command: python3 -B -m unittest discover -s tests -p "test_*.py" -v
+
+test_create_update_delete (test_api.ApiTests.test_create_update_delete) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 201 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "PUT /transactions/1692 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "DELETE /transactions/1692 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions/1692 HTTP/1.1" 404 -
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 404: 'Not Found'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+ok
+test_list_and_get_one (test_api.ApiTests.test_list_and_get_one) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions HTTP/1.1" 200 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions/1 HTTP/1.1" 200 -
+ok
+test_negative_content_length_does_not_hang (test_api.ApiTests.test_negative_content_length_does_not_hang) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 400 -
+ok
+test_not_found (test_api.ApiTests.test_not_found) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions/999999 HTTP/1.1" 404 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions/abc HTTP/1.1" 404 -
+ok
+test_odd_id_characters_give_404_not_a_crash (test_api.ApiTests.test_odd_id_characters_give_404_not_a_crash) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions/² HTTP/1.1" 404 -
+ok
+test_required_fields_cannot_be_null (test_api.ApiTests.test_required_fields_cannot_be_null) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 400 -
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 400: 'Bad Request'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+127.0.0.1 - - [29/Sep/2026 21:28:00] "PUT /transactions/2 HTTP/1.1" 400 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions/2 HTTP/1.1" 200 -
+ok
+test_validation_errors (test_api.ApiTests.test_validation_errors) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 400 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 400 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 400 -
+127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions HTTP/1.1" 400 -
+ok
+test_wrong_and_missing_credentials (test_api.ApiTests.test_wrong_and_missing_credentials) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions HTTP/1.1" 401 -
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 401: 'Unauthorized'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+127.0.0.1 - - [29/Sep/2026 21:28:00] "GET /transactions HTTP/1.1" 401 -
+ok
+test_wrong_method_on_route (test_api.ApiTests.test_wrong_method_on_route) ... 127.0.0.1 - - [29/Sep/2026 21:28:00] "POST /transactions/1 HTTP/1.1" 405 -
+/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tempfile.py:484: ResourceWarning: Implicitly cleaning up <HTTPError 405: 'Method Not Allowed'>
+  _warnings.warn(self.warn_message, ResourceWarning)
+127.0.0.1 - - [29/Sep/2026 21:28:00] "DELETE /transactions HTTP/1.1" 405 -
+ok
+test_missing_id (test_dsa.SearchTests.test_missing_id) ... ok
+test_parser_keeps_every_sms (test_dsa.SearchTests.test_parser_keeps_every_sms) ... ok
+test_three_searches_agree (test_dsa.SearchTests.test_three_searches_agree) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.605s
+
+OK
+<sys>:0: ResourceWarning: unclosed <socket.socket fd=3, family=2, type=1, proto=0, laddr=('127.0.0.1', 51418)>
