@@ -44,7 +44,7 @@
         <mxCell id="t12" value="       raw_message               TEXT            NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="290" width="360" height="24" as="geometry"/></mxCell>
         <mxCell id="t13" value="       created_at                DATETIME        NOT NULL" style="text;align=left;fontSize=10.5;html=1;" vertex="1" parent="ent-tx"><mxGeometry y="314" width="360" height="24" as="geometry"/></mxCell>
 
-        <!-- TAGS -->
+        <!-- TAGsS -->
         <mxCell id="ent-tags" value="TAGS" style="swimlane;fontSize=13;fontStyle=1;align=center;startSize=26;fillColor=#e1d5e7;strokeColor=#9673a6;html=1;" vertex="1" parent="1">
           <mxGeometry x="1260" y="60" width="260" height="74" as="geometry" />
         </mxCell>
