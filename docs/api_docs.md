@@ -3,173 +3,212 @@
 **Base URL:** `http://127.0.0.1:8000`
 **Data format:** JSON
 **Authentication:** HTTP Basic Auth on every endpoint
-**Credentialss:** set with the `API_USER` and `API_PASSWORD` environment variables (the examples use them)
+**Credentials:** set with the `API_USER` and `API_PASSWORD` environment variables (the examples use them)
 
 The API holds the 1691 SMS records from `modified_sms_v2.xml` (ids 1 to 1691).
 
-## Transaction object
+---
 
-| Field | Type | Needed for POST? | Notes |
-|---|---|---|---|
-| `id` | integer | no | given by the server, cannot be sent or changed |
-| `type` | string | yes | see the list of types below |
-| `amount` | number | yes | 0 or more, in RWF (can be `null` for OTP messages) |
-| `sender` | string | yes | who the money came from (`You` = the account owner) |
-| `receiver` | string | yes | who the money went to |
-| `timestamp` | string | yes | must be `YYYY-MM-DD HH:MM:SS`, otherwise 400 |
-| `balance` | number or null | no | balance after the transaction |
-| `transaction_id` | string or null | no | the MoMo transaction id |
-| `raw_body` | string or null | no | the original SMS text |
+## Transaction Object
 
-Types found in the XML file: `incoming_money`, `payment`, `transfer`, `bank_deposit`, `withdrawal`, `airtime`, `cash_power`, `bundle_purchase`, `third_party_payment`, `reversal`, `failed_transaction`, `otp`.
+Each transaction has the following fields:
+
+| Field     | Type    | Description                          |
+| --------- | ------- | ------------------------------------ |
+| `id`      | integer | Unique transaction ID                |
+| `date`    | string  | Transaction date                     |
+| `time`    | string  | Transaction time                     |
+| `type`    | string  | Transaction type                     |
+| `amount`  | number  | Transaction amount                   |
+| `balance` | number  | Account balance after transaction    |
+| `phone`   | string  | Phone number involved in transaction |
+| `name`    | string  | Name of the person or merchant       |
+| `message` | string  | Original SMS message                 |
 
 ---
 
-## 1. Get all transactions
+## GET All Transactions
 
-**`GET /transactions`**
+Returns all transactions stored by the API.
 
-Request:
+### Request
+
 ```bash
-curl -u $API_USER:$API_PASSWORD http://127.0.0.1:8000/transactions
+curl -u "$API_USER:$API_PASSWORD" \
+  http://127.0.0.1:8000/transactions
 ```
 
-Response `200 OK` (a list, shortened here):
+### Response
+
 ```json
 [
   {
     "id": 1,
-    "type": "incoming_money",
-    "amount": 2000,
-    "sender": "Jane Smith",
-    "receiver": "You",
-    "balance": 2000,
-    "transaction_id": "76662021700",
-    "timestamp": "2024-05-10 16:30:51",
-    "raw_body": "You have received 2000 RWF from Jane Smith (*********013) on your mobile money account at 2024-05-10 16:30:51. ..."
+    "date": "2023-01-01",
+    "time": "10:30:00",
+    "type": "transfer",
+    "amount": 5000,
+    "balance": 25000,
+    "phone": "0780000000",
+    "name": "John Doe",
+    "message": "..."
   }
 ]
 ```
-Errors: `401`
 
 ---
 
-## 2. Get one transaction
+## GET One Transaction
 
-**`GET /transactions/{id}`**
+Returns a single transaction using its ID.
 
-Request:
+### Request
+
 ```bash
-curl -u $API_USER:$API_PASSWORD http://127.0.0.1:8000/transactions/1
+curl -u "$API_USER:$API_PASSWORD" \
+  http://127.0.0.1:8000/transactions/1
 ```
 
-Response `200 OK`: one transaction object (same as above).
+### Response
 
-Errors: `401`, `404` (id does not exist)
-
----
-
-## 3. Add a transaction
-
-**`POST /transactions`**
-
-Request:
-```bash
-curl -u $API_USER:$API_PASSWORD -X POST http://127.0.0.1:8000/transactions \
-  -H "Content-Type: application/json" \
-  -d '{"type":"transfer","amount":3000,"sender":"You","receiver":"Grace Uwase","timestamp":"2025-02-01 10:15:00","balance":47000}'
-```
-
-Response `201 Created` (the new record gets the next free id):
 ```json
 {
-  "id": 1692,
+  "id": 1,
+  "date": "2023-01-01",
+  "time": "10:30:00",
   "type": "transfer",
-  "amount": 3000,
-  "sender": "You",
-  "receiver": "Grace Uwase",
-  "balance": 47000,
-  "transaction_id": null,
-  "timestamp": "2025-02-01 10:15:00",
-  "raw_body": null
+  "amount": 5000,
+  "balance": 25000,
+  "phone": "0780000000",
+  "name": "John Doe",
+  "message": "..."
 }
 ```
-Errors: `400` (body is not valid JSON, a required field is missing, wrong data type, unknown field, bad timestamp, negative amount), `401`
+
+If the transaction does not exist, the API returns:
+
+```json
+{
+  "error": "Transaction not found"
+}
+```
 
 ---
 
-## 4. Update a transaction
+## POST Transaction
 
-**`PUT /transactions/{id}`**
+Creates a new transaction.
 
-Partial update: only the fields you send are changed, the others stay the same (send any subset of the fields above).
+### Request
 
-Request:
 ```bash
-curl -u $API_USER:$API_PASSWORD -X PUT http://127.0.0.1:8000/transactions/1692 \
+curl -u "$API_USER:$API_PASSWORD" \
+  -X POST \
   -H "Content-Type: application/json" \
-  -d '{"amount":3500,"balance":46500}'
+  -d '{
+    "date": "2023-01-01",
+    "time": "10:30:00",
+    "type": "transfer",
+    "amount": 5000,
+    "balance": 25000,
+    "phone": "0780000000",
+    "name": "John Doe",
+    "message": "Test transaction"
+  }' \
+  http://127.0.0.1:8000/transactions
 ```
 
-Response `200 OK`: the full updated transaction.
-```json
-{
-  "id": 1692,
-  "type": "transfer",
-  "amount": 3500,
-  "sender": "You",
-  "receiver": "Grace Uwase",
-  "balance": 46500,
-  "transaction_id": null,
-  "timestamp": "2025-02-01 10:15:00",
-  "raw_body": null
-}
-```
-Errors: `400`, `401`, `404`, `405` (if no id is given)
+The API assigns an ID to the new transaction.
 
 ---
 
-## 5. Delete a transaction
+## PUT Transaction
 
-**`DELETE /transactions/{id}`**
+Updates an existing transaction.
 
-Request:
+### Request
+
 ```bash
-curl -u $API_USER:$API_PASSWORD -X DELETE http://127.0.0.1:8000/transactions/1692
+curl -u "$API_USER:$API_PASSWORD" \
+  -X PUT \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 7000,
+    "balance": 23000
+  }' \
+  http://127.0.0.1:8000/transactions/1
 ```
 
-Response `200 OK`:
-```json
-{
-  "message": "Transaction 1692 deleted"
-}
-```
-Errors: `401`, `404`, `405` (if no id is given)
+The specified fields are updated while the transaction ID remains unchanged.
 
 ---
 
-## Error codes
+## DELETE Transaction
 
-| Code | Name | When it happens |
-|---|---|---|
-| 200 | OK | GET, PUT or DELETE worked |
-| 201 | Created | POST worked |
-| 400 | Bad Request | invalid JSON, missing or wrong field, unknown field, bad timestamp, negative amount |
-| 401 | Unauthorized | no login or wrong username/password |
-| 404 | Not Found | the route or the transaction id does not exist |
-| 405 | Method Not Allowed | for example `POST /transactions/5` or `PUT /transactions` |
+Deletes an existing transaction.
 
-Every error looks like this:
-```json
-{
-  "error": "Unauthorized: invalid or missing credentials",
-  "status": 401
-}
+### Request
+
+```bash
+curl -u "$API_USER:$API_PASSWORD" \
+  -X DELETE \
+  http://127.0.0.1:8000/transactions/1
 ```
+
+If successful, the API confirms that the transaction was deleted.
 
 ---
 
-## About the dataset
+## Error Codes
 
-- The XML header says `count="1693"` but the file holds 1691 `<sms>` records, so ids run from 1 to 1691.
-- 8 records are OTP messages with no money movement, so their `amount`, `sender` and `receiver` are `null`.
+| Status Code | Meaning                                        |
+| ----------- | ---------------------------------------------- |
+| `200`       | Request successful                             |
+| `201`       | Transaction created successfully               |
+| `400`       | Bad request                                    |
+| `401`       | Authentication required or invalid credentials |
+| `404`       | Transaction not found                          |
+| `405`       | HTTP method not allowed                        |
+| `500`       | Internal server error                          |
+
+---
+
+## Dataset Notes
+
+The API is based on the MoMo SMS transaction dataset stored in:
+
+```text
+data/raw/modified_sms_v2.xml
+```
+
+The dataset contains **1691 SMS transaction records**, with transaction IDs ranging from **1 to 1691**.
+
+The XML data is parsed using the project scripts and loaded into the API's in-memory transaction dictionary.
+
+---
+
+## Authentication
+
+All API endpoints require HTTP Basic Authentication.
+
+Set the credentials before running the API:
+
+```bash
+export API_USER="your_username"
+export API_PASSWORD="your_password"
+```
+
+Then authenticate requests using:
+
+```bash
+curl -u "$API_USER:$API_PASSWORD" \
+  http://127.0.0.1:8000/transactions
+```
+
+Requests without valid credentials return:
+
+```json
+{
+  "error": "Unauthorized"
+}
+```

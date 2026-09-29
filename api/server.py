@@ -18,8 +18,9 @@ PASSWORD = os.environ.get("API_PASSWORD")
 HOST = os.environ.get("API_HOST", "127.0.0.1")
 PORT = int(os.environ.get("API_PORT", "8000"))
 
-# The transactions are stored in a dictionary (id -> transactions)
+# The transactions are stored in a dictionary (id -> transaction)
 # so finding one by id is fast.
+
 transactions = {}
 for t in load_transactions():
     transactions[t["id"]] = t

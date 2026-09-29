@@ -3,7 +3,7 @@
 venv/
 __pycache__/
 *.pyc
-
+requirements.txt
 # Data (raw input & generated DB should not be committed)
 data/raw/*.xml
 !data/raw/modified_sms_v2.xml
