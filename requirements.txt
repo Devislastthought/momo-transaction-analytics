@@ -1,1 +1,2 @@
-# Dependencies will be added when implementation starts.
+# The REST API and DSA code use only the Python 3 standard library.
+# Nothing needs to be installed to run them.

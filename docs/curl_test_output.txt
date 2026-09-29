@@ -1,0 +1,173 @@
+### 1. GET /transactions/1 with correct login
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   415  100   415    0     0   313k      0 --:--:-- --:--:-- --:--:--  405k
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 415
+
+{
+  "id": 1,
+  "type": "incoming_money",
+  "amount": 2000,
+  "sender": "Jane Smith",
+  "receiver": "You",
+  "balance": 2000,
+  "transaction_id": "76662021700",
+  "timestamp": "2024-05-10 16:30:51",
+  "raw_body": "You have received 2000 RWF from Jane Smith (*********013) on your mobile money account at 2024-05-10 16:30:51. Message from sender: . Your new balance:2000 RWF. Financial Transaction Id: 76662021700."
+}
+
+### 2. GET /transactions with correct login (only the first lines are shown)
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 733712
+
+[
+  {
+    "id": 1,
+    "type": "incoming_money",
+    "amount": 2000,
+    "sender": "Jane Smith",
+    "receiver": "You",
+    "balance": 2000,
+    "transaction_id": "76662021700",
+
+### 3. GET /transactions with WRONG password
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    78  100    78    0     0   171k      0 --:--:-- --:--:-- --:--:-- 78000
+HTTP/1.0 401 Unauthorized
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 78
+WWW-Authenticate: Basic realm="MoMo API"
+
+{
+  "error": "Unauthorized: invalid or missing credentials",
+  "status": 401
+}
+
+### 4. GET /transactions with no login at all
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    78  100    78    0     0   151k      0 --:--:-- --:--:-- --:--:-- 78000
+HTTP/1.0 401 Unauthorized
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 78
+WWW-Authenticate: Basic realm="MoMo API"
+
+{
+  "error": "Unauthorized: invalid or missing credentials",
+  "status": 401
+}
+
+### 5. POST /transactions (add a new one)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   331  100   208  100   123   122k  74230 --:--:-- --:--:-- --:--:--  323k
+HTTP/1.0 201 Created
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 208
+Location: /transactions/1692
+
+{
+  "id": 1692,
+  "type": "transfer",
+  "amount": 3000,
+  "sender": "You",
+  "receiver": "Grace Uwase",
+  "balance": 47000,
+  "transaction_id": null,
+  "timestamp": "2025-02-01 10:15:00",
+  "raw_body": null
+}
+
+### 6. PUT /transactions/1692 (change amount and balance)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   239  100   208  100    31   145k  22222 --:--:-- --:--:-- --:--:--  233k
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 208
+
+{
+  "id": 1692,
+  "type": "transfer",
+  "amount": 3500,
+  "sender": "You",
+  "receiver": "Grace Uwase",
+  "balance": 46500,
+  "transaction_id": null,
+  "timestamp": "2025-02-01 10:15:00",
+  "raw_body": null
+}
+
+### 7. DELETE /transactions/1692
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    43  100    43    0     0   107k      0 --:--:-- --:--:-- --:--:-- 43000
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 43
+
+{
+  "message": "Transaction 1692 deleted"
+}
+
+### 8. GET /transactions/1692 again (should be 404 now)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    60  100    60    0     0  81855      0 --:--:-- --:--:-- --:--:-- 60000
+HTTP/1.0 404 Not Found
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 60
+
+{
+  "error": "Transaction 1692 not found",
+  "status": 404
+}
+
+### 9. POST with bad data (should be 400)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    69  100    53  100    16  86178  26016 --:--:-- --:--:-- --:--:-- 69000
+HTTP/1.0 400 Bad Request
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 53
+
+{
+  "error": "Missing field: type",
+  "status": 400
+}
+### 10. POST with a bad timestamp (should be 400)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   173  100    86  100    87   188k   190k --:--:-- --:--:-- --:--:--  168k
+HTTP/1.0 400 Bad Request
+Server: BaseHTTP/0.6 Python/3.12.3
+Date: Mon, 28 Sep 2026 19:53:24 GMT
+Content-Type: application/json
+Content-Length: 86
+
+{
+  "error": "Field 'timestamp' must look like YYYY-MM-DD HH:MM:SS",
+  "status": 400
+}

@@ -9,7 +9,11 @@ transactions supplied in XML format.
 
 The PDF contains the database design documentation for the Week 2 submission.
 
+<<<<<<< HEAD
 ## Current progress (Week 2)
+=======
+## Current progress (Weeks 2 and 3)
+>>>>>>> 15af445 (add Week 3 project implementation)
 
 The repository contains the database ERD, SQL setup and sample data, SQL tests,
 recorded test results, and JSON examples. The setup uses MySQL style SQL and was
@@ -17,8 +21,14 @@ tested on **MariaDB 10.4.27 through XAMPP**. A run on Oracle MySQL has not been
 recorded here; the assignment's MySQL requirement still needs confirmation.
 
 Week 1 proposed SQLite for the application. Week 2 adds the SQL database design
+<<<<<<< HEAD
 required by the assignment. The ETL pipeline, API, dashboard and Python tests
 remain placeholders. The SQL setup inserts sample records; it does not import XML.
+=======
+required by the assignment. Week 3 adds a secured REST API and search benchmark
+(see [REST API](#rest-api-week-3)). The ETL pipeline and dashboard remain
+placeholders. The SQL setup inserts sample records; it does not import XML.
+>>>>>>> 15af445 (add Week 3 project implementation)
 
 ## Team and project links
 
@@ -70,8 +80,15 @@ docs/
   momo-architecture-diagram.jpg
 ```
 
+<<<<<<< HEAD
 The existing `etl/`, `api/`, `web/`, `scripts/`, and `tests/` folders hold the
 application scaffold. `data/processed/dashboard.json` is an unprocessed placeholder.
+=======
+The `etl/`, `web/` and `scripts/` folders and the empty `api/app.py`, `api/db.py`,
+`api/schemas.py` hold the application scaffold. `data/processed/dashboard.json` is an
+unprocessed placeholder. Week 3 adds `api/server.py`, `dsa/`, `tests/test_api.py`,
+`tests/test_dsa.py`, `tests/curl_tests.sh`, `docs/api_docs.md` and `screenshots/`.
+>>>>>>> 15af445 (add Week 3 project implementation)
 
 ## Run the database
 
@@ -133,11 +150,120 @@ formal JSON Schema definitions. The nested example follows transaction 1 in the
 seed data, including its NULL receiver. Insertion-time timestamps are omitted;
 transaction dates do not claim a timezone absent from the source SQL.
 
+<<<<<<< HEAD
 ## XML input and future work
 
 Keep the supplied dataset locally at `data/raw/momo.xml`; raw XML is ignored by Git.
 Copying it there does not import it. XML parsing, database loading, API endpoints,
 and dashboard visualisations remain future implementation work.
+=======
+## REST API (Week 3)
+
+A REST API for the MoMo SMS records, written in plain Python (`http.server`) with
+no third-party packages. It parses `modified_sms_v2.xml` into JSON transactions,
+serves them through CRUD endpoints protected with HTTP Basic Authentication, and
+compares linear search with dictionary lookup.
+
+```text
+data/raw/modified_sms_v2.xml
+        |
+        v
+dsa/parse_xml.py  ->  list of transaction dicts
+        |
+        v
+api/server.py  ->  in-memory dict {id: transaction}  ->  JSON over HTTP
+        ^
+        |
+  Basic Auth check on every request
+```
+
+The API keeps its data in memory and reloads the XML on restart. It is separate
+from the MySQL design above; connecting the two is future work.
+
+### Run it
+
+Requires Python 3.8 or newer. Run from the repository root.
+
+```bash
+export API_USER=your_username
+export API_PASSWORD=choose_a_strong_password
+python3 api/server.py
+```
+
+The server starts on `http://127.0.0.1:8000` and refuses to start if `API_USER` or
+`API_PASSWORD` is missing. Optional: `API_HOST`, `API_PORT`, `MOMO_XML_PATH`
+(see `.env.example`). In a second terminal, export the same two variables and try:
+
+```bash
+curl -u "$API_USER:$API_PASSWORD" http://127.0.0.1:8000/transactions/1
+curl -u "$API_USER:wrong-password" http://127.0.0.1:8000/transactions
+```
+
+### Endpoints
+
+| Method | Path | Description | Success | Errors |
+|---|---|---|---|---|
+| GET | `/transactions` | List all transactions | 200 | 401 |
+| GET | `/transactions/{id}` | Get one transaction | 200 | 401, 404 |
+| POST | `/transactions` | Create a transaction | 201 | 400, 401 |
+| PUT | `/transactions/{id}` | Update fields of a transaction | 200 | 400, 401, 404 |
+| DELETE | `/transactions/{id}` | Delete a transaction | 200 | 401, 404 |
+
+Requests, responses and error codes: [docs/api_docs.md](docs/api_docs.md).
+
+### Security
+
+- Basic Auth is checked before any route runs; failures return `401` with `WWW-Authenticate`.
+- The password is compared in constant time (`hmac.compare_digest`).
+- Credentials come from environment variables, never from the source code.
+- POST and PUT bodies are validated (JSON shape, required fields, types,
+  non-negative amount, timestamp format, unknown fields).
+- Basic Auth only Base64-encodes credentials, so it needs HTTPS in real use. JWT and
+  OAuth 2.0 are stronger; the report compares them.
+
+### Search benchmark
+
+Average time per lookup by id, in microseconds (`python3 dsa/search_compare.py`):
+
+| Records | Linear | Dictionary | Binary |
+|---|---|---|---|
+| 20 | 0.312 | 0.052 | 0.550 |
+| 100 | 0.818 | 0.045 | 0.407 |
+| 1,691 | 15.706 | 0.045 | 0.955 |
+| 10,000 | 87.597 | 0.116 | 1.277 |
+| 100,000 | 844.423 | 0.253 | 2.495 |
+
+Linear search is O(n), binary search O(log n), dictionary lookup O(1) on average.
+Timings vary by machine. The last two rows use generated data.
+
+### Tests
+
+```bash
+python3 -m unittest tests/test_api.py tests/test_dsa.py -v
+bash tests/curl_tests.sh
+```
+
+`tests/curl_tests.sh` needs the server running and both environment variables
+exported. Its recorded output is in `docs/curl_test_output.txt`; screenshots go in
+[`screenshots/`](screenshots/). The team-submitted PDF report is
+[docs/MoMo_API_Report.pdf](docs/MoMo_API_Report.pdf).
+
+### API limitations
+
+- Changes are held in memory and lost on restart.
+- One shared login, no roles, no rate limiting, no HTTPS.
+- The XML header says 1,693 messages but the file holds 1,691; OTP messages have no
+  amount, sender or receiver.
+- `data/raw/modified_sms_v2.xml` is un-ignored in `.gitignore` so the API runs after
+  a fresh clone; other raw XML stays ignored.
+
+
+## XML input and future work
+
+The ETL scaffold expects the dataset at `data/raw/momo.xml`; other raw XML is ignored
+by Git. The REST API reads `data/raw/modified_sms_v2.xml`. Database loading and
+dashboard visualisations remain future implementation work.
+>>>>>>> 15af445 (add Week 3 project implementation)
 
 ## Week 1 architecture
 
