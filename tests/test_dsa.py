@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dsa.parse_xml import load_transactions
 from dsa.search_compare import linear_search, dictionary_lookup, binary_search
 
-
+# test
 class SearchTests(unittest.TestCase):
 
     @classmethod
@@ -34,3 +34,4 @@ class SearchTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
