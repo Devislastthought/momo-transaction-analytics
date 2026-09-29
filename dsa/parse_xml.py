@@ -19,7 +19,7 @@ def to_number(text):
 
 
 def read_message(body):
-    """Look at the text of one SMS and find the type, amount, sender and receiver."""
+    """Look at the text of one SMS and find the type, amount, sender and receivers."""
     msg_type = "other"
     amount = None
     sender = None
