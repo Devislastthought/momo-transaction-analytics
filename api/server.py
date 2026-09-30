@@ -6,6 +6,7 @@ import sys
 import json
 import base64
 import hmac
+import math
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -72,6 +73,8 @@ def check_data(data, need_all_fields):
             value = data[field]
             if isinstance(value, bool) or not isinstance(value, (int, float)):
                 return "Field '" + field + "' must be a number"
+            if isinstance(value, float) and not math.isfinite(value):
+                return "Field '" + field + "' must be finite"
 
     if "timestamp" in data:
         try:
@@ -108,7 +111,7 @@ class MoMoHandler(BaseHTTPRequestHandler):
         if header is None or not header.startswith("Basic "):
             return False
         try:
-            decoded = base64.b64decode(header[6:]).decode("utf-8")
+            decoded = base64.b64decode(header[6:], validate=True).decode("utf-8")
         except Exception:
             return False
         expected = f"{USERNAME}:{PASSWORD}"

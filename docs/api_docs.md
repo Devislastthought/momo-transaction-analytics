@@ -236,14 +236,14 @@ Every error has the same shape: `{"error": "<message>", "status": <code>}`.
 | ------ | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
 | `200`  | OK                 | GET, PUT and DELETE succeeded                                                                                    |
 | `201`  | Created            | POST succeeded                                                                                                   |
-| `400`  | Bad Request        | Body missing, larger than 1 MB, or not valid JSON; body is not a JSON object; a field is missing, unknown, null or has the wrong type; negative amount; bad timestamp |
+| `400`  | Bad Request        | Body missing, larger than 1 MB, or not valid JSON; body is not a JSON object; a field is missing, unknown, null or has the wrong type; negative amount; non-finite number (NaN or infinity); bad timestamp |
 | `401`  | Unauthorized       | Missing, malformed or wrong credentials                                                                          |
 | `404`  | Not Found          | `Route not found`, or `Transaction {id} not found`                                                               |
 | `405`  | Method Not Allowed | `POST` with an id, or `PUT` / `DELETE` without an id                                                             |
 
 Exact `400` messages: `Body is missing or is not valid JSON`, `Body must be a JSON object`,
 `Missing field: x`, `Unknown field: x`, `Field 'x' cannot be null`, `Field 'x' must be text`,
-`Field 'x' must be a number`, `Field 'amount' must be a number that is 0 or more`,
+`Field 'x' must be a number`, `Field 'x' must be finite`, `Field 'amount' must be a number that is 0 or more`,
 `Field 'timestamp' must look like YYYY-MM-DD HH:MM:SS`.
 
 Other methods (`HEAD`, `PATCH`, `OPTIONS`) are not implemented; Python's `http.server` answers them with `501`.
