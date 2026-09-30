@@ -18,7 +18,7 @@ The API loads the 1691 SMS records from `data/raw/modified_sms_v2.xml` when it s
 | `type`           | string         | Kind of SMS, e.g. `payment`, `transfer`, `bank_deposit`, `incoming_money` |
 | `amount`         | number or null | Amount in RWF. `null` for messages that carry no amount (OTP messages)    |
 | `sender`         | string or null | Who sent the money (`"You"` for outgoing payments)                        |
-| `receiver`       | string or null | Who received the money (`"You"` for incoming money)                       |
+| `receiver`       | string or null | Recipient/counterparty (`"You"` for incoming money; named agent for withdrawals)                       |
 | `balance`        | number or null | Balance after the transaction, when the SMS shows it                      |
 | `transaction_id` | string or null | Financial transaction id printed in the SMS, when there is one            |
 | `timestamp`      | string         | `YYYY-MM-DD HH:MM:SS` (Rwanda time)                                       |

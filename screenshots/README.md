@@ -19,9 +19,10 @@ to LF. The GET-all body is summarized as a record count to keep it readable.
 | 08_get_all.png | Authenticated GET list returns 200 and 1691 records |
 
 All 10 curl checks passed. A second run against the same server also passed,
-using the next generated ID. The automated suite passed 12 tests; its full output
-is in [api-tests.txt](../docs/test-results/api-tests.txt). Python 3.14 emitted
-resource-cleanup warnings in the existing test harness; these were not test failures.
+using the next generated ID. The original automated run passed 12 tests. After the 30 September regression
+updates, the expanded suite passes 25 tests without the earlier cleanup warnings;
+its current output is in [api-tests.txt](../docs/test-results/api-tests.txt).
+The screenshots retain the original 29 September curl run.
 
 ## Repeat the tests
 
@@ -55,7 +56,7 @@ Automated tests start their own temporary server; they do not need Terminal 1:
 python3 -B -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Expected ending: `Ran 12 tests` and `OK`.
+Expected ending: `Ran 25 tests` and `OK`.
 
 ## Try each request yourself
 

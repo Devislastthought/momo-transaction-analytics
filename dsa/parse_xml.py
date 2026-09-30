@@ -19,7 +19,7 @@ def to_number(text):
 
 
 def read_message(body):
-    """Look at the text of one SMS and find the type, amount, sender and receivers."""
+    """Look at the text of one SMS and find the type, amount, sender and receiver."""
     msg_type = "other"
     amount = None
     sender = None
@@ -42,7 +42,8 @@ def read_message(body):
         if m:
             amount = to_number(m.group(1))
             sender = "You"
-            receiver = "Agent"
+            agent = re.search(r"via agent:\s*(.+?)\s*\(", body)
+            receiver = agent.group(1).strip() if agent else None
 
     elif "bank deposit of" in body:
         m = re.search(r"bank deposit of ([\d,]+) RWF", body)

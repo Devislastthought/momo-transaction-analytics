@@ -48,7 +48,7 @@ dsa/
   parse_xml.py                XML -> list of transaction dictionaries
   search_compare.py           Linear vs dictionary vs binary search benchmark
 tests/
-  test_api.py, test_dsa.py    Unit tests (12 tests)
+  test_api.py, test_dsa.py, test_parse_xml.py  API, search and parser tests
   curl_tests.sh               End-to-end curl walkthrough of the API
 screenshots/                  Test-case screenshots required by Week 3
 database/
@@ -190,11 +190,13 @@ Linear search is O(n), binary search O(log n), dictionary lookup O(1) on average
 ### Tests
 
 ```bash
-python3 -m unittest tests/test_api.py tests/test_dsa.py -v
+python3 -B -m unittest discover -s tests -p 'test_*.py' -v
 bash tests/curl_tests.sh
 ```
 
-The 12 unit tests cover CRUD, authentication, validation and three regression cases: required fields cannot be set to `null`, a negative `Content-Length` returns `400` instead of hanging the single-threaded server, and an odd id such as `²` returns `404` instead of crashing the handler.
+The 25 automated tests cover CRUD, authentication, validation and three regression cases: required fields cannot be set to `null`, a negative `Content-Length` returns `400` instead of hanging the single-threaded server, and an odd id such as `²` returns `404` instead of crashing the handler.
+
+The expanded suite also checks authentication on all CRUD routes, malformed tokens/JSON, non-finite numbers, rejected updates, values from all 12 SMS types, and empty/sparse search inputs. Current results are in [docs/test-results/api-tests.txt](docs/test-results/api-tests.txt).
 
 `tests/curl_tests.sh` needs the server running and both environment variables exported. Its recorded output is in `docs/curl_test_output.txt`; screenshots go in [`screenshots/`](screenshots/). The team-submitted PDF report is [docs/MoMo_API_Report.pdf](docs/MoMo_API_Report.pdf).
 
