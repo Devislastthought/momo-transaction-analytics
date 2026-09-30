@@ -1,0 +1,14 @@
+# Local settings and generated Python files
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Keep the assignment dataset, not duplicate raw input or generated output
+data/raw/*.xml
+!data/raw/modified_sms_v2.xml
+data/processed/transactions.json
+data/db.sqlite3
+data/logs/*.log
